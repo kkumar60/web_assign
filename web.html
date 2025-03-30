@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --white: #ffffff;
+            --gray-light: #e9ecef;
+            --gray: #adb5bd;
+            --gray-dark: #495057;
+            
+            --sidebar-width: 250px;
+            --header-height: 60px;
+            --transition-speed: 0.3s;
+        }
+
+        .dark-mode {
+            --primary-color: #5d7aff;
+            --secondary-color: #868e96;
+            --light-color: #212529;
+            --dark-color: #f8f9fa;
+            --white: #343a40;
+            --gray-light: #495057;
+            --gray: #868e96;
+            --gray-dark: #e9ecef;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--white);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            transition: background-color var(--transition-speed);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+
+        .nav-links {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+
+        .nav-item span {
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background-color: var(--gray-light);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .nav-item.active {
+            background-color: rgba(74, 107, 255, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .nav-item.active i,
+        .nav-item.active span {
+            color: var(--primary-color);
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            margin-top: auto;
+        }
+
+        .mode-toggle i {
+            margin-right: 15px;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+
+        .mode-toggle span {
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-switch label {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-switch label:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--white);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + label {
+            background-color: var(--primary-color);
+        }
+
+        .toggle-switch input:checked + label:before {
+            transform: translateX(26px);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            transition: background-color var(--transition-speed);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+        }
+
+        /* Courses Section */
+        .stats-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            font-size: 1rem;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .course-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .course-header h3 {
+            font-size: 1.2rem;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .course-status {
+            font-size: 0.8rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .course-status.enrolled {
+            background-color: rgba(74, 107, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .course-status.completed {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .course-card p {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .course-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            flex-grow: 1;
+            transition: width 1s ease-in-out;
+        }
+
+        .course-progress span {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .add-course-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .add-course-btn:hover {
+            background-color: #3a5bd9;
+        }
+
+        /* Assignments Section */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gray-light);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background-color: var(--gray-light);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .assignment-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .assignment-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .assignment-card.completed {
+            opacity: 0.8;
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+
+        .assignment-info h3 {
+            font-size: 1.1rem;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+
+        .assignment-info p {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .due-date {
+            font-size: 0.8rem;
+            color: var(--danger-color);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .due-date.completed {
+            color: var(--success-color);
+        }
+
+        .due-date i {
+            font-size: 0.9rem;
+        }
+
+        .assignment-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .course-tag {
+            font-size: 0.8rem;
+            padding: 3px 10px;
+            background-color: rgba(74, 107, 255, 0.1);
+            color: var(--primary-color);
+            border-radius: 20px;
+        }
+
+        .mark-complete-btn {
+            background-color: var(--success-color);
+            color: var(--white);
+            border: none;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .mark-complete-btn:hover {
+            background-color: #218838;
+        }
+
+        .grade {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .add-assignment-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 20px auto 0;
+        }
+
+        .add-assignment-btn:hover {
+            background-color: #3a5bd9;
+        }
+
+        /* Progress Section */
+        .progress-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .progress-chart {
+            flex: 2;
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: 300px;
+            position: relative;
+        }
+
+        .chart-key {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .key-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .key-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .key-color.completed {
+            background-color: var(--success-color);
+        }
+
+        .key-color.in-progress {
+            background-color: var(--primary-color);
+        }
+
+        .key-color.not-started {
+            background-color: var(--gray);
+        }
+
+        .progress-details {
+            flex: 1;
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-details h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .progress-item {
+            margin-bottom: 15px;
+        }
+
+        .progress-item span {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar-container .progress-bar {
+            height: 6px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        .progress-bar-container span {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .milestones {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .milestones h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .milestone-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: var(--gray-light);
+            transition: transform 0.3s;
+        }
+
+        .milestone-card:hover {
+            transform: translateX(5px);
+        }
+
+        .milestone-card i {
+            font-size: 1.5rem;
+            color: var(--warning-color);
+        }
+
+        .milestone-info h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .milestone-info span {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        /* Settings Section */
+        .settings-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .setting-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .setting-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .setting-option span {
+            font-size: 0.9rem;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray);
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--white);
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        #font-size {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid var(--gray-light);
+            background-color: var(--white);
+            color: var(--dark-color);
+        }
+
+        .change-password-btn,
+        .two-factor-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .change-password-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .change-password-btn:hover {
+            background-color: #3a5bd9;
+        }
+
+        .two-factor-btn {
+            background-color: var(--success-color);
+            color: var(--white);
+        }
+
+        .two-factor-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Profile Section */
+        .profile-container {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .profile-photo-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+
+        #profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+        }
+
+        .upload-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upload-btn:hover {
+            background-color: #3a5bd9;
+        }
+
+        #photo-upload {
+            display: none;
+        }
+
+        .profile-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+
+        .profile-info p {
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .detail-card {
+            background-color: var(--gray-light);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .detail-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+        }
+
+        .detail-item span {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .detail-item p {
+            font-size: 0.9rem;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .save-profile-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .save-profile-btn:hover {
+            background-color: #3a5bd9;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                padding: 10px 0;
+            }
+            
+            .nav-links {
+                display: flex;
+                flex-grow: 0;
+            }
+            
+            .nav-item {
+                padding: 10px 15px;
+            }
+            
+            .mode-toggle {
+                margin-left: auto;
+                padding: 10px 15px;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+            }
+            
+            .progress-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo">EduTrack</div>
+            <ul class="nav-links">
+                <li class="nav-item active" data-section="courses">
+                    <i class="fas fa-book"></i>
+                    <span>Courses</span>
+                </li>
+                <li class="nav-item" data-section="assignments">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </li>
+                <li class="nav-item" data-section="progress">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Progress</span>
+                </li>
+                <li class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </li>
+                <li class="nav-item" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </li>
+            </ul>
+            <div class="mode-toggle">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="mode-switch">
+                    <label for="mode-switch"></label>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <!-- Courses Section -->
+            <section id="courses" class="content-section active">
+                <h2>My Courses</h2>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <h3>Total Courses</h3>
+                        <p class="stat-value" id="total-courses">5</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Enrolled</h3>
+                        <p class="stat-value" id="enrolled-courses">3</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Completed</h3>
+                        <p class="stat-value" id="completed-courses">2</p>
+                    </div>
+                </div>
+                
+                <div class="courses-grid">
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h3 contenteditable="true">Web Development</h3>
+                            <span class="course-status enrolled">Enrolled</span>
+                        </div>
+                        <p>Advanced HTML, CSS, and JavaScript</p>
+                        <div class="course-progress">
+                            <div class="progress-bar" style="width: 65%;"></div>
+                            <span>65%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h3 contenteditable="true">Data Science</h3>
+                            <span class="course-status enrolled">Enrolled</span>
+                        </div>
+                        <p>Python, Pandas, and Machine Learning</p>
+                        <div class="course-progress">
+                            <div class="progress-bar" style="width: 30%;"></div>
+                            <span>30%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h3 contenteditable="true">Mobile App Development</h3>
+                            <span class="course-status enrolled">Enrolled</span>
+                        </div>
+                        <p>React Native and Firebase</p>
+                        <div class="course-progress">
+                            <div class="progress-bar" style="width: 10%;"></div>
+                            <span>10%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h3 contenteditable="true">UX/UI Design</h3>
+                            <span class="course-status completed">Completed</span>
+                        </div>
+                        <p>Figma, Adobe XD, and User Research</p>
+                        <div class="course-progress">
+                            <div class="progress-bar" style="width: 100%;"></div>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h3 contenteditable="true">Database Management</h3>
+                            <span class="course-status completed">Completed</span>
+                        </div>
+                        <p>SQL, NoSQL, and Database Design</p>
+                        <div class="course-progress">
+                            <div class="progress-bar" style="width: 100%;"></div>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="add-course-btn">+ Add New Course</button>
+            </section>
+
+            <!-- Assignments Section -->
+            <section id="assignments" class="content-section">
+                <h2>Assignments</h2>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="upcoming">Upcoming</button>
+                    <button class="tab-btn" data-tab="completed">Completed</button>
+                    <button class="tab-btn" data-tab="all">All Assignments</button>
+                </div>
+                
+                <div class="tab-content active" id="upcoming-tab">
+                    <div class="assignment-card">
+                        <div class="assignment-info">
+                            <h3 contenteditable="true">Web Dev Project</h3>
+                            <p>Create a responsive dashboard</p>
+                            <span class="due-date"><i class="far fa-calendar-alt"></i> Due: May 15, 2023</span>
+                        </div>
+                        <div class="assignment-actions">
+                            <span class="course-tag">Web Development</span>
+                            <button class="mark-complete-btn">Mark Complete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="assignment-card">
+                        <div class="assignment-info">
+                            <h3 contenteditable="true">Data Analysis Report</h3>
+                            <p>Analyze dataset and create visualizations</p>
+                            <span class="due-date"><i class="far fa-calendar-alt"></i> Due: May 20, 2023</span>
+                        </div>
+                        <div class="assignment-actions">
+                            <span class="course-tag">Data Science</span>
+                            <button class="mark-complete-btn">Mark Complete</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="completed-tab">
+                    <div class="assignment-card completed">
+                        <div class="assignment-info">
+                            <h3 contenteditable="true">UX Case Study</h3>
+                            <p>Redesign a mobile app interface</p>
+                            <span class="due-date completed"><i class="far fa-calendar-check"></i> Submitted: Apr 28, 2023</span>
+                        </div>
+                        <div class="assignment-actions">
+                            <span class="course-tag">UX/UI Design</span>
+                            <span class="grade">Grade: A</span>
+                        </div>
+                    </div>
+                    
+                    <div class="assignment-card completed">
+                        <div class="assignment-info">
+                            <h3 contenteditable="true">SQL Queries</h3>
+                            <p>Database optimization exercises</p>
+                            <span class="due-date completed"><i class="far fa-calendar-check"></i> Submitted: Apr 15, 2023</span>
+                        </div>
+                        <div class="assignment-actions">
+                            <span class="course-tag">Database Management</span>
+                            <span class="grade">Grade: A-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="all-tab">
+                    <!-- Combined content would go here -->
+                </div>
+                
+                <button class="add-assignment-btn">+ Add New Assignment</button>
+            </section>
+
+            <!-- Progress Section -->
+            <section id="progress" class="content-section">
+                <h2>Progress Tracking</h2>
+                <div class="progress-container">
+                    <div class="progress-chart">
+                        <div class="chart-key">
+                            <span class="key-item"><span class="key-color completed"></span> Completed (100%)</span>
+                            <span class="key-item"><span class="key-color in-progress"></span> In Progress</span>
+                            <span class="key-item"><span class="key-color not-started"></span> Not Started</span>
+                        </div>
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                    <div class="progress-details">
+                        <h3>Course Completion</h3>
+                        <div class="progress-item">
+                            <span>Web Development</span>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 65%;"></div>
+                                <span>65%</span>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <span>Data Science</span>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 30%;"></div>
+                                <span>30%</span>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <span>Mobile App Development</span>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 10%;"></div>
+                                <span>10%</span>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <span>UX/UI Design</span>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 100%;"></div>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <span>Database Management</span>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 100%;"></div>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="milestones">
+                    <h3>Recent Milestones</h3>
+                    <div class="milestone-card">
+                        <i class="fas fa-trophy"></i>
+                        <div class="milestone-info">
+                            <h4>Completed UX/UI Design Course</h4>
+                            <span>April 30, 2023</span>
+                        </div>
+                    </div>
+                    <div class="milestone-card">
+                        <i class="fas fa-medal"></i>
+                        <div class="milestone-info">
+                            <h4>Scored 95% on Database Final</h4>
+                            <span>April 18, 2023</span>
+                        </div>
+                    </div>
+                    <div class="milestone-card">
+                        <i class="fas fa-star"></i>
+                        <div class="milestone-info">
+                            <h4>Submitted Web Dev Midterm</h4>
+                            <span>May 5, 2023</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="content-section">
+                <h2>Settings</h2>
+                <div class="settings-container">
+                    <div class="setting-card">
+                        <h3><i class="fas fa-palette"></i> Appearance</h3>
+                        <div class="setting-option">
+                            <span>Dark Mode</span>
+                            <label class="switch">
+                                <input type="checkbox" id="dark-mode-setting">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-option">
+                            <span>Font Size</span>
+                            <select id="font-size">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-card">
+                        <h3><i class="fas fa-bell"></i> Notifications</h3>
+                        <div class="setting-option">
+                            <span>Assignment Reminders</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-option">
+                            <span>Course Updates</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-option">
+                            <span>Grade Notifications</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-card">
+                        <h3><i class="fas fa-shield-alt"></i> Security</h3>
+                        <button class="change-password-btn">Change Password</button>
+                        <button class="two-factor-btn">Enable Two-Factor Authentication</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="content-section">
+                <h2>My Profile</h2>
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-photo-container">
+                            <img id="profile-image" src="https://via.placeholder.com/150" alt="Profile Photo">
+                            <label for="photo-upload" class="upload-btn">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                            <input type="file" id="photo-upload" accept="image/*">
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profile-name" contenteditable="true">Karan Kumar</h3>
+                            <p id="profile-email" contenteditable="true">kkumar11@gmail.com</p>
+                            <p id="profile-major" contenteditable="true">Computer Systems</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-details">
+                        <div class="detail-card">
+                            <h3><i class="fas fa-info-circle"></i> Personal Information</h3>
+                            <div class="detail-item">
+                                <span>Full Name</span>
+                                <p contenteditable="true">Karan Kumar</p>
+                            </div>
+                            <div class="detail-item">
+                                <span>Email</span>
+                                <p contenteditable="true">kkumar11@gmail.com</p>
+                            </div>
+                            <div class="detail-item">
+                                <span>Student ID</span>
+                                <p contenteditable="true">22CS008</p>
+                            </div>
+                            <div class="detail-item">
+                                <span>Enrollment Date</span>
+                                <p contenteditable="true">September 1, 2022</p>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <h3><i class="fas fa-graduation-cap"></i> Academic Information</h3>
+                            <div class="detail-item">
+                                <span>Major</span>
+                                <p contenteditable="true">Computer Systems</p>
+                            </div>
+                            <div class="detail-item">
+                                <span>GPA</span>
+                                <p contenteditable="true">3.78</p>
+                            </div>
+                            <div class="detail-item">
+                                <span>Credits Completed</span>
+                                <p contenteditable="true">45</p>
+                            </div>
+                            <div class="detail-item">
+                                <span>Expected Graduation</span>
+                                <p contenteditable="true">May 2025</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="save-profile-btn">Save Changes</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation between sections
+            const navItems = document.querySelectorAll('.nav-item');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all nav items
+                    navItems.forEach(navItem => {
+                        navItem.classList.remove('active');
+                        navItem.querySelector('i').style.color = '';
+                        navItem.querySelector('span').style.color = '';
+                    });
+                    
+                    // Add active class to clicked nav item
+                    this.classList.add('active');
+                    this.querySelector('i').style.color = 'var(--primary-color)';
+                    this.querySelector('span').style.color = 'var(--primary-color)';
+                    
+                    // Hide all content sections
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // Show the selected content section
+                    const sectionId = this.getAttribute('data-section');
+                    document.getElementById(sectionId).classList.add('active');
+                });
+            });
+            
+            // Dark mode toggle
+            const modeSwitch = document.getElementById('mode-switch');
+            const darkModeSetting = document.getElementById('dark-mode-setting');
+            
+            modeSwitch.addEventListener('change', function() {
+                document.body.classList.toggle('dark-mode');
+                if (darkModeSetting) {
+                    darkModeSetting.checked = this.checked;
+                }
+            });
+            
+            if (darkModeSetting) {
+                darkModeSetting.addEventListener('change', function() {
+                    document.body.classList.toggle('dark-mode');
+                    modeSwitch.checked = this.checked;
+                });
+            }
+            
+            // Profile photo upload
+            const photoUpload = document.getElementById('photo-upload');
+            const profileImage = document.getElementById('profile-image');
+            
+            if (photoUpload && profileImage) {
+                photoUpload.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(event) {
+                            profileImage.src = event.target.result;
+                        };
+                        
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
+            
+            // Assignment tabs
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            if (tabBtns.length && tabContents.length) {
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const tabId = this.getAttribute('data-tab');
+                        
+                        // Remove active class from all buttons and contents
+                        tabBtns.forEach(btn => btn.classList.remove('active'));
+                        tabContents.forEach(content => content.classList.remove('active'));
+                        
+                        // Add active class to clicked button
+                        this.classList.add('active');
+                        
+                        // Show corresponding content
+                        document.getElementById(`${tabId}-tab`).classList.add('active');
+                    });
+                });
+            }
+            
+            // Mark assignment complete
+            const markCompleteBtns = document.querySelectorAll('.mark-complete-btn');
+            
+            markCompleteBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const assignmentCard = this.closest('.assignment-card');
+                    assignmentCard.classList.add('completed');
+                    
+                    const dueDate = assignmentCard.querySelector('.due-date');
+                    if (dueDate) {
+                        dueDate.classList.add('completed');
+                        dueDate.innerHTML = '<i class="far fa-calendar-check"></i> Submitted: ' + new Date().toLocaleDateString();
+                    }
+                    
+                    const gradeSpan = document.createElement('span');
+                    gradeSpan.className = 'grade';
+                    gradeSpan.textContent = 'Grade: A';
+                    
+                    this.replaceWith(gradeSpan);
+                });
+            });
+            
+            // Initialize chart
+            const progressChart = document.getElementById('progressChart');
+            if (progressChart) {
+                new Chart(progressChart, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Web Dev (65%)', 'Data Science (30%)', 'Mobile Dev (10%)', 'UX/UI (100%)', 'DB Mgmt (100%)'],
+                        datasets: [{
+                            data: [65, 30, 10, 100, 100],
+                            backgroundColor: [
+                                'var(--primary-color)',  // Blue for in-progress
+                                'var(--primary-color)',  // Blue for in-progress
+                                'var(--primary-color)',  // Blue for in-progress
+                                'var(--success-color)',  // Green for completed
+                                'var(--success-color)'   // Green for completed
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: {
+                                        size: 12
+                                    },
+                                    generateLabels: function(chart) {
+                                        const data = chart.data;
+                                        if (data.labels.length && data.datasets.length) {
+                                            return data.labels.map(function(label, i) {
+                                                const backgroundColor = data.datasets[0].backgroundColor[i];
+                                                return {
+                                                    text: label,
+                                                    fillStyle: backgroundColor,
+                                                    hidden: false,
+                                                    lineWidth: 0,
+                                                    strokeStyle: 'transparent'
+                                                };
+                                            });
+                                        }
+                                        return [];
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.raw}% complete`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Editable content
+            document.querySelectorAll('[contenteditable="true"]').forEach(element => {
+                element.addEventListener('blur', function() {
+                    console.log(`Updated content: ${this.textContent}`);
+                    // Here you would typically save to a database
+                });
+            });
+            
+            // Add course button
+            const addCourseBtn = document.querySelector('.add-course-btn');
+            if (addCourseBtn) {
+                addCourseBtn.addEventListener('click', function() {
+                    const coursesGrid = document.querySelector('.courses-grid');
+                    if (coursesGrid) {
+                        const newCourse = document.createElement('div');
+                        newCourse.className = 'course-card';
+                        newCourse.innerHTML = `
+                            <div class="course-header">
+                                <h3 contenteditable="true">New Course</h3>
+                                <span class="course-status enrolled">Enrolled</span>
+                            </div>
+                            <p contenteditable="true">Course description</p>
+                            <div class="course-progress">
+                                <div class="progress-bar" style="width: 0%;"></div>
+                                <span>0%</span>
+                            </div>
+                        `;
+                        coursesGrid.appendChild(newCourse);
+                        
+                        // Update course count
+                        const totalCourses = document.getElementById('total-courses');
+                        const enrolledCourses = document.getElementById('enrolled-courses');
+                        if (totalCourses && enrolledCourses) {
+                            totalCourses.textContent = parseInt(totalCourses.textContent) + 1;
+                            enrolledCourses.textContent = parseInt(enrolledCourses.textContent) + 1;
+                        }
+                    }
+                });
+            }
+            
+            // Add assignment button
+            const addAssignmentBtn = document.querySelector('.add-assignment-btn');
+            if (addAssignmentBtn) {
+                addAssignmentBtn.addEventListener('click', function() {
+                    const upcomingTab = document.getElementById('upcoming-tab');
+                    if (upcomingTab) {
+                        const newAssignment = document.createElement('div');
+                        newAssignment.className = 'assignment-card';
+                        newAssignment.innerHTML = `
+                            <div class="assignment-info">
+                                <h3 contenteditable="true">New Assignment</h3>
+                                <p contenteditable="true">Assignment description</p>
+                                <span class="due-date"><i class="far fa-calendar-alt"></i> Due: ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span>
+                            </div>
+                            <div class="assignment-actions">
+                                <span class="course-tag">General</span>
+                                <button class="mark-complete-btn">Mark Complete</button>
+                            </div>
+                        `;
+                        upcomingTab.appendChild(newAssignment);
+                        
+                        // Add event listener to new button
+                        newAssignment.querySelector('.mark-complete-btn').addEventListener('click', function() {
+                            const assignmentCard = this.closest('.assignment-card');
+                            assignmentCard.classList.add('completed');
+                            
+                            const dueDate = assignmentCard.querySelector('.due-date');
+                            if (dueDate) {
+                                dueDate.classList.add('completed');
+                                dueDate.innerHTML = '<i class="far fa-calendar-check"></i> Submitted: ' + new Date().toLocaleDateString();
+                            }
+                            
+                            const gradeSpan = document.createElement('span');
+                            gradeSpan.className = 'grade';
+                            gradeSpan.textContent = 'Grade: A';
+                            
+                            this.replaceWith(gradeSpan);
+                        });
+                    }
+                });
+            }
+            
+            // Save profile button
+            const saveProfileBtn = document.querySelector('.save-profile-btn');
+            if (saveProfileBtn) {
+                saveProfileBtn.addEventListener('click', function() {
+                    alert('Profile changes saved!');
+                    // Here you would typically save to a database
+                });
+            }
+        });
+    </script>
+</body>
+</html>
